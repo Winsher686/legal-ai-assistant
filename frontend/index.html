@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>企业法务知识库智能问答系统</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- 登录页 -->
+  <div id="login-page" class="login-page hidden">
+    <div class="login-card">
+      <h1>企业法务 AI 助手</h1>
+      <div class="sub">企业法务知识库与法规制度智能问答系统</div>
+      <div class="form-group">
+        <label>用户名</label>
+        <input type="text" id="login-username" class="input" placeholder="请输入用户名" value="legal" />
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" id="login-password" class="input" placeholder="请输入密码" value="legal123" />
+      </div>
+      <div class="error-msg" id="login-error"></div>
+      <button class="btn btn-primary" id="login-btn" onclick="doLogin()">登 录</button>
+      <div style="margin-top:16px;font-size:12px;color:#5a6b85;">
+        默认账号：admin/admin123 · legal/legal123 · employee/emp123
+      </div>
+    </div>
+  </div>
+
+  <!-- 主布局 -->
+  <div id="app-layout" class="layout hidden">
+    <aside class="sidebar">
+      <div class="logo">⚖️ 法务 AI 助手</div>
+      <a class="nav-item" href="#/dashboard"><span class="icon">📊</span><span>首页概览</span></a>
+      <a class="nav-item" href="#/chat"><span class="icon">💬</span><span>智能问答</span></a>
+      <a class="nav-item" href="#/documents"><span class="icon">📁</span><span>文档管理</span></a>
+      <a class="nav-item" href="#/graph"><span class="icon">🕸️</span><span>知识图谱</span></a>
+      <div class="user-info">
+        <div id="user-name" style="font-weight:600;color:#1a2233;"></div>
+        <div id="user-role" style="font-size:11px;"></div>
+        <a href="javascript:logout()" style="color:#2b5cff;font-size:12px;">退出登录</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- 首页概览 -->
+      <div id="page-dashboard" class="page hidden">
+        <h2 class="page-title">首页概览</h2>
+        <p class="page-subtitle">企业法务知识库运行状态</p>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-value" id="stat-docs">-</div><div class="stat-label">知识文档数</div></div>
+          <div class="stat-card"><div class="stat-value" id="stat-vectors">-</div><div class="stat-label">知识片段（向量）</div></div>
+          <div class="stat-card"><div class="stat-value" id="stat-today">-</div><div class="stat-label">今日问答</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">系统能力</div>
+          <p style="color:#5a6b85;">
+            基于 <strong>RAG + GraphRAG</strong> 架构，实现企业制度、合同、法规文档的智能检索与问答，
+            支持引用溯源、知识图谱关系推理、幻觉控制。
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">快速开始</div>
+          <p style="color:#5a6b85;">前往「智能问答」输入问题，或到「文档管理」上传知识文档。</p>
+          <div style="margin-top:12px;">
+            <a class="btn btn-primary" href="#/chat">开始问答 →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 智能问答 -->
+      <div id="page-chat" class="page hidden">
+        <h2 class="page-title">智能问答</h2>
+        <p class="page-subtitle">输入法务问题，系统基于知识库检索并生成可溯源答案</p>
+        <div class="card chat-container">
+          <div class="chat-messages" id="chat-messages">
+            <div class="message assistant">
+              <div class="avatar">🤖</div>
+              <div class="bubble">
+                你好，我是企业法务 AI 助手。可以问我关于合同审批、制度规定、法规要求等问题。
+              </div>
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <textarea id="chat-input" placeholder="例如：采购合同超过500万元需要法务审核吗？" onkeydown="handleChatKeydown(event)"></textarea>
+            <button class="btn btn-primary" id="chat-send-btn" onclick="sendChat()">发送</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 文档管理 -->
+      <div id="page-documents" class="page hidden">
+        <h2 class="page-title">文档管理</h2>
+        <p class="page-subtitle">上传企业法务知识文档，系统自动解析、向量化、构建知识图谱</p>
+        <div class="card">
+          <div class="card-title">上传文档</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <input type="file" id="doc-file" accept=".pdf,.docx,.txt,.md" style="flex:1;" />
+            <select id="doc-type" class="input" style="width:180px;">
+              <option value="company_policy">企业制度</option>
+              <option value="contract_template">合同模板</option>
+              <option value="regulation">法律法规</option>
+              <option value="case_file">历史案例</option>
+              <option value="process_document">流程文档</option>
+            </select>
+            <input type="text" id="doc-version" class="input" placeholder="版本号" value="V1.0" style="width:120px;" />
+            <button class="btn btn-primary" onclick="uploadDocument()">上传</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">文档列表</div>
+          <table class="table">
+            <thead><tr><th>文档名称</th><th>类型</th><th>版本</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody id="doc-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 知识图谱 -->
+      <div id="page-graph" class="page hidden">
+        <h2 class="page-title">知识图谱展示</h2>
+        <p class="page-subtitle">展示企业法务知识实体与关系网络</p>
+        <div class="card">
+          <div style="display:flex;gap:12px;margin-bottom:16px;">
+            <input type="text" id="graph-entity" class="input" placeholder="输入实体名称，如：采购合同" value="采购合同" style="width:280px;" />
+            <button class="btn btn-primary" onclick="queryGraph()">查询关系</button>
+          </div>
+          <div id="graph-canvas" class="graph-canvas"></div>
+          <div id="graph-relations" style="margin-top:16px;"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/common.js"></script>
+  <script src="js/pages.js"></script>
+</body>
+</html>

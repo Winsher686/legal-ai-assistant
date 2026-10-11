@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# 环境变量（敏感信息不入库）
+.env
+
+# 存储（文档、向量、图数据，运行时生成）
+storage/documents/
+storage/*.db
+storage/*.log
+
+# 知识库中间产物
+knowledge_base/embeddings/
+knowledge_base/chunks/
+knowledge_base/cleaned/
+
+# IDE
+.idea/
+.vscode/
+.DS_Store
+
+# 测试缓存
+.pytest_cache/
+.coverage
+htmlcov/
